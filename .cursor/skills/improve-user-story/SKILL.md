@@ -67,10 +67,15 @@ Keep the improved story in the same language as the user's input (e.g. Spanish i
 
 **Save the improved user story under** `ai-specs/tickets/`.
 
-- When the ticket or feature has a name (e.g. add-candidate), use a subfolder: `ai-specs/tickets/{ticket_name}/` and write the file there (e.g. `ai-specs/tickets/add-candidate/USER_STORY.md`).
-- When there is no specific ticket name, save as `ai-specs/tickets/USER_STORY.md` or `ai-specs/tickets/{descriptive-name}.md`.
+- The output file must be named **`refined.md`**.
+- When the ticket or feature has a name (e.g. add-candidate), use a subfolder: `ai-specs/tickets/{ticket_name}/` and write the file there (e.g. `ai-specs/tickets/add-candidate/refined.md`).
+- When there is no specific ticket name, save as `ai-specs/tickets/refined.md` or `ai-specs/tickets/{descriptive-name}/refined.md`.
 - Create any folder that does not exist.
-- Write the refined story, acceptance criteria, and notes into a single markdown file; then confirm the path to the user.
+- Write the refined story, acceptance criteria, and notes into the single markdown file `refined.md`; then confirm the path to the user.
+
+## Prompt logging
+
+After applying this skill, append an entry to [prompts.md](../../../prompts.md) with: date (YYYY-MM-DD), context/source `improve-user-story`, and the user's prompt or request (exact or summarized). See AGENTS.md for the project rule.
 
 ## Examples
 

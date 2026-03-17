@@ -58,6 +58,7 @@ For every task:
 6. Add or update tests.
 7. Validate loading, empty, error, success, and interaction states.
 8. Summarize what changed, assumptions, and any follow-up improvements.
+9. Record the prompt: append an entry to [prompts.md](../../prompts.md) with date (YYYY-MM-DD), context/source (e.g. frontend-developer, ticket name), and the user's prompt or request. See AGENTS.md for the project rule.
 
 ## Planning Rules
 

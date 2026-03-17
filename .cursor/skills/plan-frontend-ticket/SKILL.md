@@ -49,6 +49,7 @@ Optionally add: mapping of acceptance criteria to UI behavior, test strategy (co
 3. Write the plan using the required sections above. Keep language and style consistent with AGENTS.md (English).
 4. Save to `ai-specs/changes/{feature_name}/frontend.md`.
 5. Confirm to the user the path and a one-line summary of the plan.
+6. Append an entry to [prompts.md](../../../prompts.md) with: date (YYYY-MM-DD), context/source `plan-frontend-ticket`, and the user's prompt or request. See AGENTS.md for the project rule.
 
 ## Plan Template
 

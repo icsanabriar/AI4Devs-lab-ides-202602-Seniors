@@ -141,6 +141,14 @@ Pull Requests must:
 
 ---
 
+## Prompt logging
+
+- **All prompts** that are used or generated in this project (user requests that trigger a skill or agent, or prompts produced by the agent) must be **recorded in [prompts.md](./prompts.md)** at the repository root.
+- Each entry must include: **date** (YYYY-MM-DD), **context/source** (e.g. skill name, agent, ticket), and the **prompt text** (exact or summarized).
+- Append new entries; do not remove or overwrite existing ones. Skills and agents in `.cursor/` must ensure they add an entry to `prompts.md` when they are applied or when they produce a prompt.
+
+---
+
 ## Definition of Done
 
 A task is complete when:
