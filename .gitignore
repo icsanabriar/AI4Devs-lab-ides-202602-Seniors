@@ -16,6 +16,9 @@
 **/build
 **/dist
 
+# uploads (local file storage)
+**/uploads
+
 # logs
 npm-debug.log*
 yarn-debug.log*

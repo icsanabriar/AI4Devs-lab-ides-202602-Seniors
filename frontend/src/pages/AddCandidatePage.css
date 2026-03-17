@@ -11,7 +11,7 @@
 .add-candidate-back button {
   background: none;
   border: none;
-  color: #61dafb;
+  color: #005a9e;
   cursor: pointer;
   text-decoration: underline;
   font-size: 1rem;
@@ -19,5 +19,11 @@
 
 .add-candidate-back button:hover,
 .add-candidate-back button:focus {
-  color: #8ee4fb;
+  color: #003d6b;
+}
+
+.add-candidate-back button:focus-visible {
+  outline: 2px solid #003d6b;
+  outline-offset: 2px;
+  border-radius: 2px;
 }

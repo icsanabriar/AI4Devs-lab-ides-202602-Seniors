@@ -1,8 +1,13 @@
+/**
+ * Form component for adding a candidate: fields, validation display, file input, submit.
+ */
 import React from 'react';
 import './AddCandidateForm.css';
 
+/** Accepted file extensions for CV upload. */
 const ACCEPTED_CV_TYPES = '.pdf,.docx';
 
+/** Form field values for the add-candidate form. */
 export interface AddCandidateFormValues {
   firstName: string;
   lastName: string;
@@ -13,6 +18,7 @@ export interface AddCandidateFormValues {
   workExperience: string;
 }
 
+/** Props for AddCandidateForm. */
 export interface AddCandidateFormProps {
   values: AddCandidateFormValues;
   fieldErrors: Record<string, string>;
@@ -25,6 +31,7 @@ export interface AddCandidateFormProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
+/** Add-candidate form with controlled inputs and optional CV file. */
 export function AddCandidateForm({
   values,
   fieldErrors,
@@ -36,6 +43,7 @@ export function AddCandidateForm({
   onFileSelect,
   onSubmit,
 }: AddCandidateFormProps): React.ReactElement {
+  /** Validates and passes selected PDF/DOCX file to parent or null. */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     if (!file) {

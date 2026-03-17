@@ -1,15 +1,51 @@
+/**
+ * HTTP controller for candidate-related endpoints.
+ */
 import { Request, Response, NextFunction } from 'express';
 import { createCandidateSchema } from '../../application/validation/createCandidateSchema';
-import { createCandidate } from '../../application/services/candidateService';
+import { createCandidate, uploadResume as uploadResumeService } from '../../application/services/candidateService';
 import type { CreateCandidateInput } from '../../domain/types/candidate';
 
+/** Parses a value as JSON if it is a non-empty string; otherwise returns undefined. */
+function parseOptionalJson(value: unknown): unknown {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value !== 'string') return value;
+  try {
+    return JSON.parse(value) as unknown;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Normalizes request body for validation. For multipart, fields are strings and
+ * education/workExperience may be JSON strings.
+ */
+function normalizeBody(body: Record<string, unknown>): Record<string, unknown> {
+  return {
+    firstName: body.firstName,
+    lastName: body.lastName,
+    email: body.email,
+    phone: body.phone,
+    address: body.address,
+    education: parseOptionalJson(body.education),
+    workExperience: parseOptionalJson(body.workExperience),
+  };
+}
+
+/**
+ * Handles POST /candidates: accepts JSON or multipart/form-data. Validates body (and optional
+ * resume file), creates candidate (and document when file present), returns 201 or error.
+ */
 export async function createCandidateHandler(
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
-    const parsed = createCandidateSchema.safeParse(req.body);
+    const rawBody = typeof req.body === 'object' && req.body !== null ? req.body : {};
+    const body = normalizeBody(rawBody as Record<string, unknown>);
+    const parsed = createCandidateSchema.safeParse(body);
     if (!parsed.success) {
       res.status(400).json({
         success: false,
@@ -36,11 +72,65 @@ export async function createCandidateHandler(
       workExperience: parsed.data.workExperience,
     };
 
-    const candidate = await createCandidate(input);
+    const file =
+      req.file &&
+      req.file.buffer &&
+      req.file.mimetype &&
+      typeof req.file.size === 'number'
+        ? {
+            buffer: req.file.buffer,
+            originalname: req.file.originalname ?? 'resume',
+            mimetype: req.file.mimetype,
+            size: req.file.size,
+          }
+        : undefined;
+
+    const candidate = await createCandidate(input, file);
     res.status(201).json({
       success: true,
       data: candidate,
       message: 'Candidate has been added successfully',
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Handles POST /candidates/:id/resume: accepts multipart with "resume" file. Validates and stores
+ * the file, creates CandidateDocument for the candidate. Returns 200 or error.
+ */
+export async function uploadResumeHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Invalid candidate id', code: 'VALIDATION_ERROR' },
+      });
+      return;
+    }
+    if (!req.file?.buffer || !req.file.mimetype || typeof req.file.size !== 'number') {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Resume file is required', code: 'VALIDATION_ERROR' },
+      });
+      return;
+    }
+    const file = {
+      buffer: req.file.buffer,
+      originalname: req.file.originalname ?? 'resume',
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+    };
+    await uploadResumeService(id, file);
+    res.status(200).json({
+      success: true,
+      message: 'Resume uploaded successfully',
     });
   } catch (err) {
     next(err);

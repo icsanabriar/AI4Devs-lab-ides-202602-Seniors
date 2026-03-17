@@ -1,13 +1,18 @@
+/**
+ * Central error-handling middleware: maps known errors to HTTP status and JSON body.
+ */
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { DuplicateEmailError } from '../application/services/candidateService';
+import { DuplicateEmailError, InvalidResumeError, CandidateNotFoundError } from '../application/services/candidateService';
 
+/** Shape of the error object in validation error responses. */
 export interface ValidationErrorBody {
   message: string;
   code: string;
   fields?: Array< { path: string; message: string } >;
 }
 
+/** Error class for validation failures (400). */
 export class ValidationError extends Error {
   readonly code = 'VALIDATION_ERROR';
   readonly statusCode = 400;
@@ -20,10 +25,15 @@ export class ValidationError extends Error {
   }
 }
 
+/** Type guard for Zod validation errors. */
 function isZodError(err: unknown): err is ZodError {
   return err instanceof ZodError;
 }
 
+/**
+ * Express error handler. Sends appropriate status and JSON for ValidationError,
+ * ZodError, DuplicateEmailError, and unknown errors.
+ */
 export function errorHandler(
   err: unknown,
   _req: Request,
@@ -60,6 +70,28 @@ export function errorHandler(
 
   if (err instanceof DuplicateEmailError) {
     res.status(409).json({
+      success: false,
+      error: {
+        message: err.message,
+        code: err.code,
+      },
+    });
+    return;
+  }
+
+  if (err instanceof InvalidResumeError) {
+    res.status(400).json({
+      success: false,
+      error: {
+        message: err.message,
+        code: err.code,
+      },
+    });
+    return;
+  }
+
+  if (err instanceof CandidateNotFoundError) {
+    res.status(404).json({
       success: false,
       error: {
         message: err.message,

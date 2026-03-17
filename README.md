@@ -9,7 +9,7 @@ This project is a full-stack application with a React frontend and an Express ba
     - `index.ts`:  The entry point for the backend server.
   - `prisma/`: Contains the Prisma schema file for ORM.
   - `tsconfig.json`: TypeScript configuration file.
-  - `.env`: Contains the environment variables.
+  - `.env`: Contains the environment variables. Add `CORS_ORIGINS=http://localhost:3000` (or a comma-separated list of allowed origins for CORS).
 - `frontend/`: Contains the client-side code written in React.
   - `src/`: Contains the source code for the frontend.
   - `public/`: Contains static files such as the HTML file and images.

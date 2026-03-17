@@ -124,4 +124,42 @@ describe('POST /candidates', () => {
     expect(response.body.data.phone).toBeNull();
     expect(response.body.data.address).toBeNull();
   });
+
+  it('returns 201 and candidate with resume when multipart includes valid PDF', async () => {
+    if (!dbConnected) return;
+    const pdfBuffer = Buffer.from('%PDF-1.4 minimal', 'utf-8');
+    const response = await request(app)
+      .post('/candidates')
+      .field('firstName', 'With')
+      .field('lastName', 'Resume')
+      .field('email', 'with.resume@example.com')
+      .attach('resume', pdfBuffer, { filename: 'resume.pdf', contentType: 'application/pdf' });
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data).toMatchObject({
+      firstName: 'With',
+      lastName: 'Resume',
+      email: 'with.resume@example.com',
+    });
+    expect(response.body.data.resume).toBeDefined();
+    expect(response.body.data.resume.fileName).toBe('resume.pdf');
+    expect(response.body.data.resume.contentType).toBe('application/pdf');
+    expect(response.body.data.resume.size).toBe(pdfBuffer.length);
+  });
+
+  it('returns 400 INVALID_RESUME when resume has disallowed content type', async () => {
+    if (!dbConnected) return;
+    const textBuffer = Buffer.from('not a pdf', 'utf-8');
+    const response = await request(app)
+      .post('/candidates')
+      .field('firstName', 'Bad')
+      .field('lastName', 'File')
+      .field('email', 'bad.file@example.com')
+      .attach('resume', textBuffer, { filename: 'file.txt', contentType: 'text/plain' });
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.error.code).toBe('INVALID_RESUME');
+  });
 });

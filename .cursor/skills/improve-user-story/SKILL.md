@@ -61,7 +61,7 @@ When improving a user story, respond with:
 2. **Acceptance criteria** (Given/When/Then or bullets).
 3. **Notes** (optional): what was changed and why, or suggestions (e.g. split into two stories, clarify role).
 
-Keep the improved story in the same language as the user's input (e.g. Spanish if they wrote in Spanish).
+Write the improved story in **English** by default, in line with the repository rule "Always write in English" (see AGENTS.md and documentation standards). The repo rule takes precedence. Only use another language if the user **explicitly and unambiguously** asks for the output in that language (e.g. "write the refined story in Spanish").
 
 ## Save location (this project)
 
@@ -75,7 +75,7 @@ Keep the improved story in the same language as the user's input (e.g. Spanish i
 
 ## Prompt logging
 
-After applying this skill, append an entry to [prompts.md](../../../prompts.md) with: date (YYYY-MM-DD), context/source `improve-user-story`, and the user's prompt or request (exact or summarized). See AGENTS.md for the project rule.
+After applying this skill, append an entry to [prompts.md](../../../prompts.md) with: date (YYYY-MM-DD), context/source `improve-user-story`, and the user's prompt or request (original wording; redact only when necessary). See AGENTS.md for the project rule.
 
 ## Examples
 

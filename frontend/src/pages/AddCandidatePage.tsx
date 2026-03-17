@@ -1,11 +1,15 @@
+/**
+ * Page for adding a new candidate: form state, validation, submit, and API call.
+ */
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AddCandidatePage.css';
 import { AddCandidateForm } from '../components/AddCandidateForm';
 import type { AddCandidateFormValues } from '../components/AddCandidateForm';
-import { createCandidate } from '../services/candidateService';
+import { createCandidate, uploadResume } from '../services/candidateService';
 import type { CreateCandidateInput } from '../types/candidate';
 
+/** Default form values for add candidate. */
 const initialValues: AddCandidateFormValues = {
   firstName: '',
   lastName: '',
@@ -16,8 +20,10 @@ const initialValues: AddCandidateFormValues = {
   workExperience: '',
 };
 
+/** Simple email format check for client-side validation. */
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** Returns field-level errors for the form values. */
 function validate(values: AddCandidateFormValues): Record<string, string> {
   const errors: Record<string, string> = {};
   if (!values.firstName.trim()) {
@@ -34,6 +40,7 @@ function validate(values: AddCandidateFormValues): Record<string, string> {
   return errors;
 }
 
+/** Builds API payload from form values. */
 function buildPayload(values: AddCandidateFormValues): CreateCandidateInput {
   return {
     firstName: values.firstName.trim(),
@@ -50,6 +57,7 @@ function buildPayload(values: AddCandidateFormValues): CreateCandidateInput {
   };
 }
 
+/** Add-candidate page with form, validation, and create API integration. */
 export function AddCandidatePage(): React.ReactElement {
   const navigate = useNavigate();
   const [values, setValues] = useState<AddCandidateFormValues>(initialValues);
@@ -59,6 +67,7 @@ export function AddCandidatePage(): React.ReactElement {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  /** Updates a form field and clears its error. */
   const onValueChange = useCallback((field: keyof AddCandidateFormValues, value: string) => {
     setValues((prev) => ({ ...prev, [field]: value }));
     setErrorMessage(null);
@@ -71,6 +80,7 @@ export function AddCandidatePage(): React.ReactElement {
     }
   }, [fieldErrors]);
 
+  /** Validates form, creates candidate (and uploads resume if selected), then resets or sets errors. */
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -84,7 +94,17 @@ export function AddCandidatePage(): React.ReactElement {
       setSubmitting(true);
       try {
         const payload = buildPayload(values);
-        await createCandidate(payload);
+        const data = await createCandidate(payload);
+        if (selectedFile) {
+          try {
+            await uploadResume(data.id, selectedFile);
+          } catch (uploadErr: unknown) {
+            const msg = uploadErr instanceof Error ? uploadErr.message : 'Resume upload failed.';
+            setErrorMessage(`Candidate created but resume upload failed: ${msg}`);
+            setSubmitting(false);
+            return;
+          }
+        }
         setSuccessMessage('Candidate has been added successfully.');
         setValues(initialValues);
         setSelectedFile(null);
@@ -117,9 +137,10 @@ export function AddCandidatePage(): React.ReactElement {
         setSubmitting(false);
       }
     },
-    [values]
+    [values, selectedFile]
   );
 
+  /** Updates the selected CV file from the file input. */
   const handleFileSelect = useCallback((file: File | null) => {
     setSelectedFile(file);
   }, []);

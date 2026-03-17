@@ -1,9 +1,13 @@
+/**
+ * Client for the candidates API. Handles create candidate and maps errors to CandidateApiError.
+ */
 import type {
   CreateCandidateInput,
   CreateCandidateSuccessResponse,
   ApiErrorResponse,
 } from '../types/candidate';
 
+/** Error thrown when the candidates API returns a non-2xx response. */
 export class CandidateApiError extends Error {
   readonly status: number;
   readonly code?: string;
@@ -23,10 +27,16 @@ export class CandidateApiError extends Error {
   }
 }
 
+/** Returns the base URL for the backend API from env or default. */
 const getApiBaseUrl = (): string => {
   return process.env.REACT_APP_API_URL ?? 'http://localhost:3010';
 };
 
+/**
+ * Creates a candidate via POST /candidates. Throws CandidateApiError on failure.
+ * @param data - Create candidate payload
+ * @returns The created candidate from the API
+ */
 export async function createCandidate(
   data: CreateCandidateInput
 ): Promise<CreateCandidateSuccessResponse['data']> {
@@ -53,4 +63,33 @@ export async function createCandidate(
 
   const success = body as CreateCandidateSuccessResponse;
   return success.data;
+}
+
+/**
+ * Uploads a resume for an existing candidate via POST /candidates/:id/resume (multipart/form-data).
+ * Throws CandidateApiError on failure.
+ * @param candidateId - Created candidate id
+ * @param file - File object (e.g. from input type="file")
+ */
+export async function uploadResume(candidateId: number, file: File): Promise<void> {
+  const url = `${getApiBaseUrl()}/candidates/${candidateId}/resume`;
+  const formData = new FormData();
+  formData.append('resume', file, file.name);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: formData,
+  });
+
+  const body = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const error = body as ApiErrorResponse;
+    throw new CandidateApiError(
+      error?.error?.message ?? 'Resume upload failed. Please try again.',
+      response.status,
+      error?.error?.code,
+      error?.error?.fields
+    );
+  }
 }

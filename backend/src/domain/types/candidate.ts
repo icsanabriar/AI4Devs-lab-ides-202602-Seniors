@@ -3,6 +3,7 @@
  * No Prisma or framework coupling.
  */
 
+/** Education record for a candidate. */
 export interface EducationEntry {
   institution?: string;
   degree?: string;
@@ -10,6 +11,7 @@ export interface EducationEntry {
   endYear?: number;
 }
 
+/** Work experience record for a candidate. */
 export interface WorkExperienceEntry {
   company?: string;
   role?: string;
@@ -17,6 +19,7 @@ export interface WorkExperienceEntry {
   endDate?: string;
 }
 
+/** Input DTO for creating a new candidate. */
 export interface CreateCandidateInput {
   firstName: string;
   lastName: string;
@@ -27,6 +30,16 @@ export interface CreateCandidateInput {
   workExperience?: WorkExperienceEntry[];
 }
 
+/** Resume/CV document metadata as returned in API responses. */
+export interface ResumeInfo {
+  fileName: string;
+  path: string;
+  contentType: string;
+  size: number;
+  createdAt: Date;
+}
+
+/** API response shape for a candidate. */
 export interface CandidateResponse {
   id: number;
   firstName: string;
@@ -36,6 +49,7 @@ export interface CandidateResponse {
   address: string | null;
   education: unknown;
   workExperience: unknown;
+  resume?: ResumeInfo | null;
   createdAt: Date;
   updatedAt: Date;
 }

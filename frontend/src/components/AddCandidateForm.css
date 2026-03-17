@@ -27,10 +27,11 @@
   border-radius: 4px;
 }
 
-.add-candidate-field input:focus,
-.add-candidate-field textarea:focus {
-  outline: 2px solid #61dafb;
-  outline-offset: 0;
+.add-candidate-field input:focus-visible,
+.add-candidate-field textarea:focus-visible {
+  outline: 2px solid #005a9e;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(0, 90, 158, 0.25);
 }
 
 .add-candidate-field input[aria-invalid="true"],

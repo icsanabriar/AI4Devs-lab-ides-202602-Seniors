@@ -1,5 +1,9 @@
+/**
+ * Zod schema and inferred type for the create-candidate request body.
+ */
 import { z } from 'zod';
 
+/** Zod schema for a single education entry in the request body. */
 const educationEntrySchema = z.object({
   institution: z.string().optional(),
   degree: z.string().optional(),
@@ -7,6 +11,7 @@ const educationEntrySchema = z.object({
   endYear: z.number().optional(),
 });
 
+/** Zod schema for a single work experience entry in the request body. */
 const workExperienceEntrySchema = z.object({
   company: z.string().optional(),
   role: z.string().optional(),
@@ -14,6 +19,7 @@ const workExperienceEntrySchema = z.object({
   endDate: z.string().optional(),
 });
 
+/** Zod schema for validating POST /candidates request body. */
 export const createCandidateSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
@@ -24,4 +30,5 @@ export const createCandidateSchema = z.object({
   workExperience: z.array(workExperienceEntrySchema).optional(),
 });
 
+/** Inferred TypeScript type from createCandidateSchema. */
 export type CreateCandidateRequestBody = z.infer<typeof createCandidateSchema>;

@@ -1,12 +1,31 @@
 import { createCandidate, DuplicateEmailError } from '../application/services/candidateService';
 
 const mockCreate = jest.fn();
+const mockDocCreate = jest.fn();
+const mockFindUnique = jest.fn();
+
 jest.mock('../infrastructure/prismaClient', () => ({
   prisma: {
-    candidate: {
-      create: (...args: unknown[]) => mockCreate(...args),
+    $transaction: async (fn: (tx: unknown) => Promise<unknown>) => {
+      const tx = {
+        candidate: {
+          create: (...args: unknown[]) => mockCreate(...args),
+          findUnique: (...args: unknown[]) => mockFindUnique(...args),
+        },
+        candidateDocument: {
+          create: (...args: unknown[]) => mockDocCreate(...args),
+        },
+      };
+      return fn(tx);
     },
   },
+}));
+
+jest.mock('../infrastructure/fileStorage', () => ({
+  saveResume: jest.fn(),
+  deleteResumeFile: jest.fn(),
+  ALLOWED_RESUME_CONTENT_TYPES: [],
+  MAX_RESUME_SIZE_BYTES: 5 * 1024 * 1024,
 }));
 
 describe('createCandidate', () => {
@@ -42,6 +61,7 @@ describe('createCandidate', () => {
       lastName: input.lastName,
       email: 'jane@example.com',
     });
+    expect(result.resume).toBeNull();
     expect(mockCreate).toHaveBeenCalledWith({
       data: expect.objectContaining({
         firstName: input.firstName,
