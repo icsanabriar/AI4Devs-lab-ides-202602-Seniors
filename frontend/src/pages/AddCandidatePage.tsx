@@ -80,6 +80,7 @@ export function AddCandidatePage(): React.ReactElement {
   const onValueChange = useCallback((field: keyof AddCandidateFormValues, value: string) => {
     setValues((prev) => ({ ...prev, [field]: value }));
     setErrorMessage(null);
+    setSuccessMessage(null);
     if (fieldErrors[field]) {
       setFieldErrors((prev) => {
         const next = { ...prev };
@@ -94,6 +95,7 @@ export function AddCandidatePage(): React.ReactElement {
     async (e: React.FormEvent) => {
       e.preventDefault();
       setErrorMessage(null);
+      setSuccessMessage(null);
       const errors = validate(values);
       if (Object.keys(errors).length > 0) {
         setFieldErrors(errors);
@@ -156,6 +158,7 @@ export function AddCandidatePage(): React.ReactElement {
   /** Updates the selected CV file from the file input. */
   const handleFileSelect = useCallback((file: File | null) => {
     setSelectedFile(file);
+    setSuccessMessage(null);
   }, []);
 
   return (
