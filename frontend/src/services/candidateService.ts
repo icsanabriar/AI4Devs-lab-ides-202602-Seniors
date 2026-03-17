@@ -13,6 +13,12 @@ export class CandidateApiError extends Error {
   readonly code?: string;
   readonly fields?: Array<{ path: string; message: string }>;
 
+  /**
+   * @param message - Error message
+   * @param status - HTTP status code
+   * @param code - Optional error code from API
+   * @param fields - Optional validation field errors
+   */
   constructor(
     message: string,
     status: number,
@@ -27,7 +33,10 @@ export class CandidateApiError extends Error {
   }
 }
 
-/** Returns the base URL for the backend API from env or default. */
+/**
+ * Returns the base URL for the backend API from env or default.
+ * @returns Base URL (e.g. http://localhost:3010)
+ */
 const getApiBaseUrl = (): string => {
   return process.env.REACT_APP_API_URL ?? 'http://localhost:3010';
 };
@@ -70,6 +79,7 @@ export async function createCandidate(
  * Throws CandidateApiError on failure.
  * @param candidateId - Created candidate id
  * @param file - File object (e.g. from input type="file")
+ * @returns Promise that resolves when the upload succeeds
  */
 export async function uploadResume(candidateId: number, file: File): Promise<void> {
   const url = `${getApiBaseUrl()}/candidates/${candidateId}/resume`;

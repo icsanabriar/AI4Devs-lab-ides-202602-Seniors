@@ -20,12 +20,26 @@ export class DuplicateEmailError extends Error {
   }
 }
 
-/** Thrown when resume file validation fails (type, size, or storage). */
+/** Thrown when resume file validation fails (type or size). */
 export class InvalidResumeError extends Error {
   readonly code = INVALID_RESUME_CODE;
   constructor(message: string) {
     super(message);
     this.name = 'InvalidResumeError';
+  }
+}
+
+/** Error code when resume storage (filesystem) fails. */
+const RESUME_STORAGE_CODE = 'RESUME_STORAGE';
+
+/** Thrown when resume file storage fails (e.g. disk, permissions). Preserves original error in cause. */
+export class ResumeStorageError extends Error {
+  readonly code = RESUME_STORAGE_CODE;
+  readonly cause?: unknown;
+  constructor(message: string, options?: { cause?: unknown }) {
+    super(message);
+    this.name = 'ResumeStorageError';
+    this.cause = options?.cause;
   }
 }
 
@@ -86,7 +100,11 @@ function toCandidateResponse(
   };
 }
 
-/** Validates resume file contentType and size. Throws InvalidResumeError if invalid. */
+/**
+ * Validates resume file contentType and size. Throws InvalidResumeError if invalid.
+ * @param contentType - MIME type of the file
+ * @param size - File size in bytes
+ */
 function validateResumeFile(contentType: string, size: number): void {
   if (!ALLOWED_RESUME_CONTENT_TYPES.includes(contentType as (typeof ALLOWED_RESUME_CONTENT_TYPES)[number])) {
     throw new InvalidResumeError(
@@ -98,6 +116,7 @@ function validateResumeFile(contentType: string, size: number): void {
   }
 }
 
+/** Input for an uploaded resume file (buffer, name, mimetype, size) when creating a candidate or uploading a resume. */
 export interface CreateCandidateFileInput {
   buffer: Buffer;
   originalname: string;
@@ -124,7 +143,10 @@ export async function createCandidate(
     try {
       savedPath = await saveResume(file.buffer, file.mimetype, file.originalname);
     } catch (err) {
-      throw new InvalidResumeError('Failed to store resume file. Please try again.');
+      if (err instanceof InvalidResumeError) {
+        throw err;
+      }
+      throw new ResumeStorageError('Failed to store resume file. Please try again.', { cause: err });
     }
   }
 
@@ -178,6 +200,7 @@ export async function createCandidate(
  * does not exist, InvalidResumeError if file validation or storage fails.
  * @param candidateId - Existing candidate id
  * @param file - Resume file (validated and stored)
+ * @returns Promise that resolves when the resume is stored and linked to the candidate
  */
 export async function uploadResume(
   candidateId: number,
@@ -204,9 +227,12 @@ export async function uploadResume(
     if (savedPath) {
       await deleteResumeFile(savedPath).catch(() => {});
     }
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003') {
+      throw new CandidateNotFoundError(candidateId);
+    }
     if (err instanceof InvalidResumeError) {
       throw err;
     }
-    throw new InvalidResumeError('Failed to store resume file. Please try again.');
+    throw new ResumeStorageError('Failed to store resume file. Please try again.', { cause: err });
   }
 }

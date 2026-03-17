@@ -21,9 +21,9 @@ const workExperienceEntrySchema = z.object({
 
 /** Zod schema for validating POST /candidates request body. */
 export const createCandidateSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().min(1, 'Email is required').email('Invalid email format'),
+  firstName: z.string().trim().min(1, 'First name is required'),
+  lastName: z.string().trim().min(1, 'Last name is required'),
+  email: z.string().trim().min(1, 'Email is required').email('Invalid email format'),
   phone: z.string().optional(),
   address: z.string().optional(),
   education: z.array(educationEntrySchema).optional(),

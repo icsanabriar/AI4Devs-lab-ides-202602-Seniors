@@ -27,6 +27,7 @@ const EXT_BY_MIME: Record<string, string> = {
 
 /**
  * Returns the configured upload directory (absolute path). Creates it if it does not exist.
+ * @returns Absolute path to the upload directory
  */
 async function getUploadDir(): Promise<string> {
   const dir = process.env.UPLOAD_DIR ?? DEFAULT_UPLOAD_DIR;
@@ -56,13 +57,31 @@ export async function saveResume(
 }
 
 /**
+ * Ensures the resolved path is inside the upload directory. Throws if not.
+ * @param resolvedPath - Absolute path to the file
+ * @param uploadDir - Absolute path to the upload directory
+ */
+function ensurePathInsideUploadDir(resolvedPath: string, uploadDir: string): void {
+  const relativeToUpload = path.relative(uploadDir, resolvedPath);
+  if (relativeToUpload.startsWith('..') || path.isAbsolute(relativeToUpload)) {
+    throw new Error('Resume path is outside upload directory');
+  }
+}
+
+/**
  * Deletes a file by path (relative as stored in DB). No-op if file does not exist.
+ * Rejects absolute or path-traversal input and ensures the resolved path stays inside the upload directory.
  * @param relativePath - Path relative to cwd (e.g. uploads/uuid.pdf)
  */
 export async function deleteResumeFile(relativePath: string): Promise<void> {
-  const absolute = path.join(process.cwd(), relativePath);
+  if (path.isAbsolute(relativePath)) {
+    throw new Error('Resume path must be relative');
+  }
+  const uploadDir = await getUploadDir();
+  const resolvedPath = path.resolve(process.cwd(), relativePath);
+  ensurePathInsideUploadDir(resolvedPath, uploadDir);
   try {
-    await fs.unlink(absolute);
+    await fs.unlink(resolvedPath);
   } catch (err: unknown) {
     if ((err as NodeJS.ErrnoException)?.code !== 'ENOENT') {
       throw err;

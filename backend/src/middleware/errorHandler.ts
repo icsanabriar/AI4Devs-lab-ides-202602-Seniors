@@ -3,7 +3,7 @@
  */
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { DuplicateEmailError, InvalidResumeError, CandidateNotFoundError } from '../application/services/candidateService';
+import { DuplicateEmailError, InvalidResumeError, ResumeStorageError, CandidateNotFoundError } from '../application/services/candidateService';
 
 /** Shape of the error object in validation error responses. */
 export interface ValidationErrorBody {
@@ -33,6 +33,10 @@ function isZodError(err: unknown): err is ZodError {
 /**
  * Express error handler. Sends appropriate status and JSON for ValidationError,
  * ZodError, DuplicateEmailError, and unknown errors.
+ * @param err - Caught error (ValidationError, ZodError, or domain errors)
+ * @param _req - Express request (unused)
+ * @param res - Express response used to send status and JSON
+ * @param _next - Express next function (unused)
  */
 export function errorHandler(
   err: unknown,
@@ -90,12 +94,35 @@ export function errorHandler(
     return;
   }
 
+  if (err instanceof ResumeStorageError) {
+    console.error('Resume storage failed:', err.cause ?? err);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Failed to store resume file. Please try again later.',
+        code: err.code,
+      },
+    });
+    return;
+  }
+
   if (err instanceof CandidateNotFoundError) {
     res.status(404).json({
       success: false,
       error: {
         message: err.message,
         code: err.code,
+      },
+    });
+    return;
+  }
+
+  if (err instanceof SyntaxError) {
+    res.status(400).json({
+      success: false,
+      error: {
+        message: 'Invalid JSON in request field',
+        code: 'VALIDATION_ERROR',
       },
     });
     return;

@@ -6,20 +6,26 @@ import { createCandidateSchema } from '../../application/validation/createCandid
 import { createCandidate, uploadResume as uploadResumeService } from '../../application/services/candidateService';
 import type { CreateCandidateInput } from '../../domain/types/candidate';
 
-/** Parses a value as JSON if it is a non-empty string; otherwise returns undefined. */
+/**
+ * Parses a value as JSON if it is a non-empty string; otherwise returns undefined. Throws on parse error.
+ * @param value - Raw value (string, object, or undefined)
+ * @returns Parsed object or undefined
+ */
 function parseOptionalJson(value: unknown): unknown {
   if (value === undefined || value === null || value === '') return undefined;
   if (typeof value !== 'string') return value;
   try {
     return JSON.parse(value) as unknown;
-  } catch {
-    return undefined;
+  } catch (err) {
+    throw err;
   }
 }
 
 /**
  * Normalizes request body for validation. For multipart, fields are strings and
  * education/workExperience may be JSON strings.
+ * @param body - Raw request body
+ * @returns Normalized body with parsed education/workExperience when present
  */
 function normalizeBody(body: Record<string, unknown>): Record<string, unknown> {
   return {
@@ -36,6 +42,9 @@ function normalizeBody(body: Record<string, unknown>): Record<string, unknown> {
 /**
  * Handles POST /candidates: accepts JSON or multipart/form-data. Validates body (and optional
  * resume file), creates candidate (and document when file present), returns 201 or error.
+ * @param req - Express request (body and optional req.file)
+ * @param res - Express response
+ * @param next - Express next (for error handling)
  */
 export async function createCandidateHandler(
   req: Request,
@@ -99,6 +108,9 @@ export async function createCandidateHandler(
 /**
  * Handles POST /candidates/:id/resume: accepts multipart with "resume" file. Validates and stores
  * the file, creates CandidateDocument for the candidate. Returns 200 or error.
+ * @param req - Express request (params.id and req.file)
+ * @param res - Express response
+ * @param next - Express next (for error handling)
  */
 export async function uploadResumeHandler(
   req: Request,

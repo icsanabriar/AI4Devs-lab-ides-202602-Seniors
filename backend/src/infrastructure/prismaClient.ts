@@ -7,7 +7,10 @@ import { PrismaClient } from '@prisma/client';
 /** Singleton Prisma client instance. */
 export const prisma = new PrismaClient();
 
-/** Disconnects the Prisma client, logs errors, then exits the process. */
+/**
+ * Disconnects the Prisma client, logs errors, then exits the process.
+ * @param exitCode - Process exit code to use
+ */
 async function disconnectAndExit(exitCode: number): Promise<void> {
   try {
     await prisma.$disconnect();

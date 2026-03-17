@@ -23,7 +23,11 @@ const initialValues: AddCandidateFormValues = {
 /** Simple email format check for client-side validation. */
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Returns field-level errors for the form values. */
+/**
+ * Returns field-level errors for the form values.
+ * @param values - Current form values
+ * @returns Map of field names to error messages
+ */
 function validate(values: AddCandidateFormValues): Record<string, string> {
   const errors: Record<string, string> = {};
   if (!values.firstName.trim()) {
@@ -32,15 +36,20 @@ function validate(values: AddCandidateFormValues): Record<string, string> {
   if (!values.lastName.trim()) {
     errors.lastName = 'Last name is required';
   }
-  if (!values.email.trim()) {
+  const emailTrimmed = values.email.trim();
+  if (!emailTrimmed) {
     errors.email = 'Email is required';
-  } else if (!emailRegex.test(values.email)) {
+  } else if (!emailRegex.test(emailTrimmed)) {
     errors.email = 'Invalid email format';
   }
   return errors;
 }
 
-/** Builds API payload from form values. */
+/**
+ * Builds API payload from form values.
+ * @param values - Current form values
+ * @returns Create candidate input for the API
+ */
 function buildPayload(values: AddCandidateFormValues): CreateCandidateInput {
   return {
     firstName: values.firstName.trim(),
@@ -101,6 +110,10 @@ export function AddCandidatePage(): React.ReactElement {
           } catch (uploadErr: unknown) {
             const msg = uploadErr instanceof Error ? uploadErr.message : 'Resume upload failed.';
             setErrorMessage(`Candidate created but resume upload failed: ${msg}`);
+            setSuccessMessage(null);
+            setValues(initialValues);
+            setSelectedFile(null);
+            setFieldErrors({});
             setSubmitting(false);
             return;
           }
