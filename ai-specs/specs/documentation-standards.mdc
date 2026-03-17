@@ -1,0 +1,99 @@
+---
+description: Documentation and AI spec rules for the project, including English-only writing, required documentation updates, and mandatory prompt tracking.
+globs: ["**/*.md", "**/*.mdc", "**/README*", "**/ai-specs/**", "**/prompts.md"]
+alwaysApply: true
+---
+
+# Documentation and AI Spec Rules
+
+## Scope
+
+These rules apply to:
+
+- technical documentation
+- AI specs
+- project markdown files
+- documentation-related updates
+
+## General Rules
+
+- Always write in English.
+- Keep documentation clear, concise, and consistent with the project structure.
+- When updating existing docs, preserve their style and improve clarity where possible.
+- Do not leave documentation outdated after meaningful code, API, data model, or workflow changes.
+
+## Mandatory Prompt Tracking
+
+Every prompt given to the agent MUST be saved in:
+
+`prompts.md`
+
+Rules:
+
+- If `prompts.md` does not exist, create it.
+- Append every new prompt at the end of the file.
+- Do not overwrite previous prompts.
+- Preserve the original wording of the prompt unless sensitive data must be redacted.
+- If sensitive data appears, replace it with a clear marker such as `[REDACTED]`.
+- Prompt logging is mandatory for every interaction, not optional.
+
+Recommended format:
+
+```md
+## Prompt - YYYY-MM-DD HH:mm:ss
+
+[Prompt content]
+```
+
+## Technical Documentation Rules
+
+Whenever code or configuration changes affect documentation, update the relevant docs.
+
+Typical examples:
+
+- data model changes → update data-model.md
+- API changes → update API specs or endpoint documentation
+- dependency, setup, or run changes → update README or related standards docs
+- workflow or architecture changes → update the corresponding documentation files
+
+When updating documentation:
+
+1. Review the relevant code changes
+2. Identify which docs are affected
+3. Update only the affected files
+4. Keep the content accurate, concise, and in English
+5. Summarize which documentation files were updated
+
+## AI Spec Rules
+
+AI specs should define how agents plan, document, code, review, and behave in the project.
+
+Update AI specs only when there is a clear reason, such as:
+
+- repeated user feedback
+- corrections from the user
+- clarified preferences
+- new project conventions
+- recurring mistakes that should be prevented
+
+## Rule Update Process
+
+When a user interaction reveals a better rule or a missing convention:
+
+- Identify the learning clearly
+- Link it to the specific feedback or issue
+- Propose only the relevant rule change
+- Do not apply broad unrelated changes
+- Confirm what was updated after the change is made
+
+## Anti-Patterns
+
+Avoid:
+
+- modifying rules without a clear reason
+- making unrelated rule changes
+- leaving docs outdated after meaningful changes
+- writing documentation in mixed languages
+- failing to record prompts in prompts.md
+- overwriting previous prompt history
+- proposing vague rule changes without identifying the affected rule
