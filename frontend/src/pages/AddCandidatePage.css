@@ -1,0 +1,23 @@
+.add-candidate-page {
+  max-width: 32rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.add-candidate-back {
+  margin-top: 1.5rem;
+}
+
+.add-candidate-back button {
+  background: none;
+  border: none;
+  color: #61dafb;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 1rem;
+}
+
+.add-candidate-back button:hover,
+.add-candidate-back button:focus {
+  color: #8ee4fb;
+}
