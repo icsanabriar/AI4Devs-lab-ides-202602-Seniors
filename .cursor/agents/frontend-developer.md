@@ -60,7 +60,7 @@ For every task:
 8. Summarize what changed, assumptions, and any follow-up improvements.
 9. Record the prompt: append an entry to [prompts.md](../../prompts.md) as required by AGENTS.md. Do **not** paste the raw user prompt. Instead add: **date** (YYYY-MM-DD), **context/source** (e.g. frontend-developer, ticket name), and a **sanitized summary or redacted excerpt** that omits secrets, PII, and internal customer details. Example:
 
-   | 2025-03-17 | frontend-developer, add-candidate | Implement add-candidate form and page per frontend plan; validation, CV upload, error handling. |
+   | 2026-03-17 | frontend-developer, add-candidate | Implement add-candidate form and page per frontend plan; validation, CV upload, error handling. |
 
 ## Planning Rules
 

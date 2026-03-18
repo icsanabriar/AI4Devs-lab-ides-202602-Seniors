@@ -63,4 +63,4 @@ Cada criterio es verificable de forma independiente.
 - **Criterios:** Los criterios originales se reescribieron en formato Dado/Cuando/Entonces para que sean comprobables y centrados en el comportamiento observable, no en la implementación.  
 - **Alcance:** Se mantuvo una sola capacidad por historia (añadir candidato); las “tareas técnicas” y el requisito de “interfaz intuitiva” corresponden a la implementación y a la definición de hecho del equipo.  
 - **Posible división:** Si el equipo considera la historia demasiado grande para una iteración, se puede dividir en: (1) Añadir candidato con datos básicos y validación, sin carga de CV; (2) Carga de CV para candidatos.  
-- **Evolución:** La autocompletado de educación y experiencia a partir de datos existentes en el sistema puede tratarse como una historia o mejora posterior.  
+- **Evolución:** El autocompletado de educación y experiencia a partir de datos existentes en el sistema puede tratarse como una historia o mejora posterior.  

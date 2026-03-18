@@ -12,14 +12,12 @@ services:
   pgadmin:
     image: dpage/pgadmin4:9.8
     ports:
-      - 5050:80
+      - 127.0.0.1:5050:80
     environment:
       # Required by pgAdmin
-      PGADMIN_DEFAULT_EMAIL: demo@example.com
-      PGADMIN_DEFAULT_PASSWORD: secret
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:?Set PGADMIN_DEFAULT_EMAIL in your environment or .env}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:?Set PGADMIN_DEFAULT_PASSWORD in your environment or .env}
 
-      # Don't require the user to login
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-
-      # Don't require a "master" password after logging in
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+      # Secure defaults
+      PGADMIN_CONFIG_SERVER_MODE: 'True'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'True'

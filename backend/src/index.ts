@@ -5,8 +5,9 @@ import 'dotenv/config';
 import { app } from './app';
 
 /** Port the server listens on. */
-const port = 3010;
+const portFromEnv = Number(process.env.PORT);
+const port = Number.isFinite(portFromEnv) ? portFromEnv : 3010;
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server listening on port ${port}`);
 });

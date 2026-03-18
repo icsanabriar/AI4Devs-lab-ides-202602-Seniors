@@ -41,7 +41,7 @@ async function getUploadDir(): Promise<string> {
  * @param buffer - File buffer
  * @param contentType - MIME type (must be in ALLOWED_RESUME_CONTENT_TYPES)
  * @param originalFileName - Original name for extension fallback
- * @returns Relative path suitable for storing in DB (e.g. uploads/uuid.pdf)
+ * @returns Path relative to the configured upload directory (e.g. uuid.pdf) suitable for storing in DB
  */
 export async function saveResume(
   buffer: Buffer,
@@ -53,7 +53,7 @@ export async function saveResume(
   const fileName = `${randomUUID()}.${ext}`;
   const filePath = path.join(baseDir, fileName);
   await fs.writeFile(filePath, buffer);
-  return path.relative(process.cwd(), filePath);
+  return path.relative(baseDir, filePath);
 }
 
 /**
@@ -71,14 +71,14 @@ function ensurePathInsideUploadDir(resolvedPath: string, uploadDir: string): voi
 /**
  * Deletes a file by path (relative as stored in DB). No-op if file does not exist.
  * Rejects absolute or path-traversal input and ensures the resolved path stays inside the upload directory.
- * @param relativePath - Path relative to cwd (e.g. uploads/uuid.pdf)
+ * @param relativePath - Path relative to the configured upload directory (e.g. uuid.pdf)
  */
 export async function deleteResumeFile(relativePath: string): Promise<void> {
   if (path.isAbsolute(relativePath)) {
     throw new Error('Resume path must be relative');
   }
   const uploadDir = await getUploadDir();
-  const resolvedPath = path.resolve(process.cwd(), relativePath);
+  const resolvedPath = path.resolve(uploadDir, relativePath);
   ensurePathInsideUploadDir(resolvedPath, uploadDir);
   try {
     await fs.unlink(resolvedPath);

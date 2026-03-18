@@ -24,26 +24,26 @@ These rules apply to:
 
 ## Mandatory Prompt Tracking
 
-Every prompt given to the agent MUST be saved in:
-
-`prompts.md`
+Every prompt given to the agent MUST be tracked in `prompts.md`.
 
 Rules:
 
 - If `prompts.md` does not exist, create it.
-- Append every new prompt at the end of the file.
-- Do not overwrite previous prompts.
-- Preserve the original wording of the prompt unless sensitive data must be redacted.
-- If sensitive data appears, replace it with a clear marker such as `[REDACTED]`.
-- Prompt logging is mandatory for every interaction, not optional.
+- Append new entries at the end of the file and do not overwrite previous entries.
+- By default, log a **sanitized summary** of the prompt (not verbatim prompt text).
+- Logging verbatim/full prompt text is allowed **only with explicit opt-in** (e.g., the user explicitly asks to store the full prompt text).
+- Any secrets, sensitive data, or personal data MUST be redacted before being written to `prompts.md`.
 
-Recommended format:
+Redaction rules (replace with `[REDACTED:<TYPE>]`):
 
-```md
-## Prompt - YYYY-MM-DD HH:mm:ss
+- **Credentials/secrets**: API keys, tokens, passwords, private keys, auth cookies, OAuth codes.
+- **PII**: names, emails, phone numbers, addresses, government IDs, resumes/CVs, interview notes tied to a person.
+- **Sensitive business data**: internal URLs, proprietary identifiers, customer-specific details not meant for a public repo.
+- **Access details**: IPs, hostnames, database connection strings, filesystem paths that reveal sensitive environments.
 
-[Prompt content]
-```
+If a prompt cannot be safely summarized or redacted for `prompts.md`, store it in an alternative location that is **not versioned** (e.g., a secure vault, password manager, encrypted note, or a local file excluded by `.gitignore`) and log only a short pointer in `prompts.md` (e.g., “stored in secure vault, reference ID …”).
+
+Recommended `prompts.md` format: date, context/source, sanitized summary (and optionally a reference/pointer when stored elsewhere).
 
 ## Technical Documentation Rules
 

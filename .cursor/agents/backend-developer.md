@@ -199,7 +199,6 @@ Examples:
 Example:
 
 ```ts
-{
 // controller
 const user = await userService.createUser(data);
 

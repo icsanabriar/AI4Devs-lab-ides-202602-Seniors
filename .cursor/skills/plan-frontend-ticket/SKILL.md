@@ -5,7 +5,7 @@ description: Creates a frontend implementation plan for a ticket following AGENT
 
 # Plan Frontend Ticket
 
-When the user asks to plan frontend work for a ticket (or to create a frontend plan), produce an implementation plan and save it as specified below. This skill aligns with [AGENTS.md](../../AGENTS.md) and [.cursor/agents/frontend-developer.md](../../.cursor/agents/frontend-developer.md).
+When the user asks to plan frontend work for a ticket (or to create a frontend plan), produce an implementation plan and save it as specified below. This skill aligns with [AGENTS.md](../../../AGENTS.md) and [.cursor/agents/frontend-developer.md](../../agents/frontend-developer.md).
 
 ## When to Apply
 

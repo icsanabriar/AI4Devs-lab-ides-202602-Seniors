@@ -80,6 +80,8 @@ docker-compose up -d
 ```
 This will start a PostgreSQL database in a Docker container. The -d flag runs the container in detached mode, meaning it runs in the background.
 
+pgAdmin credentials are provided via environment variables (do not commit plaintext credentials). Set `PGADMIN_DEFAULT_EMAIL` and `PGADMIN_DEFAULT_PASSWORD` in your shell environment or in a local `.env` file (see `.env.example`).
+
 To access the PostgreSQL database, you can use any PostgreSQL client with the following connection details:
  - Host: localhost
  - Port: 5432
