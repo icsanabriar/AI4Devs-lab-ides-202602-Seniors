@@ -50,7 +50,7 @@ For every task:
 6. Add/update tests.
 7. Validate edge cases and failure scenarios.
 8. Provide a clear summary.
-9. Record the prompt: append an entry to [prompts.md](../../prompts.md) with date (YYYY-MM-DD), context/source (e.g. backend-developer, ticket name), and the user's prompt or request. See AGENTS.md for the project rule.
+9. Record the prompt: append an entry to [prompts.md](../../prompts.md) as required by AGENTS.md. Do **not** paste the raw user prompt. Instead add: **date** (YYYY-MM-DD), **context/source** (e.g. backend-developer, ticket name), and a **sanitized summary or redacted excerpt** that omits secrets, PII, and internal customer details. Follow the same prompt logging practice as `frontend-developer.md`.
 
 ## Planning Rules
 

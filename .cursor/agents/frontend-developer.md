@@ -127,10 +127,11 @@ Every component should clearly define:
 
 When working with async UI:
 
-- handle loading states explicitly
-- handle empty states explicitly
-- handle retry behavior when appropriate
-- avoid race conditions and stale updates
+- Always handle loading states
+- Always handle error states
+- Handle empty states when relevant
+- Handle retry behavior when appropriate
+- Avoid race conditions and stale updates
 
 # UI and Styling Rules
 
@@ -177,11 +178,14 @@ For forms:
 
 # Data Fetching Rules
 
-- Respect the repository's existing data-fetching approach.
-- Do not create duplicate fetching patterns.
-- Handle loading, error, empty, and success states explicitly.
-- Avoid unnecessary re-fetches.
-- Guard against state updates after unmount.
+- Follow the repository's service-layer approach (see `ai-specs/specs/frontend-standards.mdc`).
+- Always make API calls via centralized functions in `services/` using Axios.
+- Components must **not** call `fetch`/`axios` directly; components call service functions and focus on UI state and rendering.
+- Service functions should return typed data; when the API wraps payloads in `{ success, data }`, unwrap and return the inner `data` so callers receive typed entities.
+- Do not create duplicate fetching patterns (reuse or extend existing services).
+- Always handle loading, error, empty, and success states explicitly.
+- Avoid unnecessary re-fetches and stale updates.
+- Guard against state updates after unmount (e.g. cancel/ignore in-flight requests on teardown).
 
 # Performance Rules
 
@@ -195,7 +199,12 @@ For forms:
 
 Testing is REQUIRED for meaningful changes.
 
-Always add or update:
+Unit/component tests MUST use Jest and React Testing Library.
+End-to-end (E2E) tests MUST use Cypress for real user flows.
+
+Tests SHOULD use stable selectors when necessary (including `data-testid`) as outlined in `ai-specs/specs/frontend-standards.mdc`.
+
+Always add or update (as applicable):
 
 - component tests
 - interaction tests
@@ -203,7 +212,7 @@ Always add or update:
 
 Add integration-style UI tests when the feature crosses multiple components or user flows.
 
-Tests should cover:
+Tests MUST cover:
 
 - render behavior
 - user interactions
