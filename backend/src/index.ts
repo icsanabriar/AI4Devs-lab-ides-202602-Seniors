@@ -1,26 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
-import express from 'express';
-import { PrismaClient } from '@prisma/client';
-import dotenv from 'dotenv';
+/**
+ * Backend entry point. Loads environment variables and starts the Express server.
+ */
+import 'dotenv/config';
+import { app } from './app';
 
-dotenv.config();
-const prisma = new PrismaClient();
-
-export const app = express();
-export default prisma;
-
-const port = 3010;
-
-app.get('/', (req, res) => {
-  res.send('Hola LTI!');
-});
-
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.type('text/plain'); 
-  res.status(500).send('Something broke!');
-});
+/** Port the server listens on. */
+const portFromEnv = Number(process.env.PORT);
+const port = Number.isFinite(portFromEnv) ? portFromEnv : 3010;
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server listening on port ${port}`);
 });

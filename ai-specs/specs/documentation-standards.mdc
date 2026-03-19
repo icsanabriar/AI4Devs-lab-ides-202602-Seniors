@@ -1,0 +1,99 @@
+---
+description: Documentation and AI spec rules for the project, including English-only writing, required documentation updates, and mandatory prompt tracking.
+globs: ["**/*.md", "**/*.mdc", "**/README*", "**/ai-specs/**", "**/prompts.md"]
+alwaysApply: true
+---
+
+# Documentation and AI Spec Rules
+
+## Scope
+
+These rules apply to:
+
+- technical documentation
+- AI specs
+- project markdown files
+- documentation-related updates
+
+## General Rules
+
+- Always write in English.
+- Keep documentation clear, concise, and consistent with the project structure.
+- When updating existing docs, preserve their style and improve clarity where possible.
+- Do not leave documentation outdated after meaningful code, API, data model, or workflow changes.
+
+## Mandatory Prompt Tracking
+
+Every prompt given to the agent MUST be tracked in `prompts.md`.
+
+Rules:
+
+- If `prompts.md` does not exist, create it.
+- Append new entries at the end of the file and do not overwrite previous entries.
+- By default, log a **sanitized summary** of the prompt (not verbatim prompt text).
+- Logging verbatim/full prompt text is allowed **only with explicit opt-in** (e.g., the user explicitly asks to store the full prompt text).
+- Any secrets, sensitive data, or personal data MUST be redacted before being written to `prompts.md`.
+
+Redaction rules (replace with `[REDACTED:<TYPE>]`):
+
+- **Credentials/secrets**: API keys, tokens, passwords, private keys, auth cookies, OAuth codes.
+- **PII**: names, emails, phone numbers, addresses, government IDs, resumes/CVs, interview notes tied to a person.
+- **Sensitive business data**: internal URLs, proprietary identifiers, customer-specific details not meant for a public repo.
+- **Access details**: IPs, hostnames, database connection strings, filesystem paths that reveal sensitive environments.
+
+If a prompt cannot be safely summarized or redacted for `prompts.md`, store it in an alternative location that is **not versioned** (e.g., a secure vault, password manager, encrypted note, or a local file excluded by `.gitignore`) and log only a short pointer in `prompts.md` (e.g., “stored in secure vault, reference ID …”).
+
+Recommended `prompts.md` format: date, context/source, sanitized summary (and optionally a reference/pointer when stored elsewhere).
+
+## Technical Documentation Rules
+
+Whenever code or configuration changes affect documentation, update the relevant docs.
+
+Typical examples:
+
+- data model changes → update data-model.md
+- API changes → update API specs or endpoint documentation
+- dependency, setup, or run changes → update README or related standards docs
+- workflow or architecture changes → update the corresponding documentation files
+
+When updating documentation:
+
+1. Review the relevant code changes
+2. Identify which docs are affected
+3. Update only the affected files
+4. Keep the content accurate, concise, and in English
+5. Summarize which documentation files were updated
+
+## AI Spec Rules
+
+AI specs should define how agents plan, document, code, review, and behave in the project.
+
+Update AI specs only when there is a clear reason, such as:
+
+- repeated user feedback
+- corrections from the user
+- clarified preferences
+- new project conventions
+- recurring mistakes that should be prevented
+
+## Rule Update Process
+
+When a user interaction reveals a better rule or a missing convention:
+
+- Identify the learning clearly
+- Link it to the specific feedback or issue
+- Propose only the relevant rule change
+- Do not apply broad unrelated changes
+- Confirm what was updated after the change is made
+
+## Anti-Patterns
+
+Avoid:
+
+- modifying rules without a clear reason
+- making unrelated rule changes
+- leaving docs outdated after meaningful changes
+- writing documentation in mixed languages
+- failing to record prompts in prompts.md
+- overwriting previous prompt history
+- proposing vague rule changes without identifying the affected rule

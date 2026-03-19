@@ -1,0 +1,402 @@
+---
+description: Backend standards and conventions for the Node.js/TypeScript/Express application using Prisma, DDD-inspired layering, SOLID principles, API consistency, and testing best practices.
+globs: ["backend/src/**/*.ts", "backend/prisma/**/*.{prisma,ts}", "backend/jest.config.js", "backend/tsconfig.json", "backend/package.json"]
+alwaysApply: true
+---
+
+# Backend Standards
+
+## Overview
+
+This backend uses:
+
+- Node.js
+- TypeScript
+- Express
+- Prisma
+- PostgreSQL
+- Jest
+
+The goal is to keep the codebase:
+
+- type-safe
+- maintainable
+- testable
+- consistent
+- secure
+- aligned with a layered DDD-inspired architecture
+
+---
+
+## Core Principles
+
+### Architecture
+
+Follow a layered structure:
+
+- `src/presentation/` → controllers and HTTP handling
+- `src/application/` → use cases, services, validation, orchestration
+- `src/domain/` → entities, value objects, repository contracts, business rules
+- `src/infrastructure/` → Prisma client, logger, repository implementations, external adapters
+
+Keep responsibilities separated:
+
+- Controllers should be thin
+- Business rules belong in application/domain layers
+- Data access belongs in repositories/infrastructure
+- Domain code should avoid framework and ORM coupling where possible
+
+### DDD-Inspired Design
+
+Use these concepts when they improve clarity:
+
+- **Entities** for domain objects with identity
+- **Value Objects** for concepts defined by attributes
+- **Aggregates** to protect consistency boundaries
+- **Repositories** to abstract persistence
+- **Services** for business logic that does not naturally belong inside one entity
+
+Prefer modeling business concepts clearly over leaking raw Prisma/database shapes across the app.
+
+### SOLID and DRY
+
+Apply these rules consistently:
+
+- Single responsibility per class/module
+- Extend behavior without unnecessary modification of stable code
+- Depend on abstractions when useful
+- Avoid bloated interfaces
+- Remove duplicated business rules and validation logic
+
+---
+
+## Project Structure
+
+Preferred structure:
+
+```text
+backend/
+├── src/
+│   ├── domain/
+│   │   ├── models/
+│   │   └── repositories/
+│   ├── application/
+│   │   ├── services/
+│   │   └── validator.ts
+│   ├── presentation/
+│   │   └── controllers/
+│   ├── infrastructure/
+│   │   ├── logger.ts
+│   │   └── prismaClient.ts
+│   ├── routes/
+│   ├── middleware/
+│   └── index.ts
+├── prisma/
+│   ├── schema.prisma
+│   └── migrations/
+├── test-utils/
+├── jest.config.js
+├── tsconfig.json
+└── package.json
+```
+
+Respect the existing structure if the repository already differs in a meaningful way.
+
+---
+
+# TypeScript Standards
+
+- Always use strict typing
+- Avoid `any`
+- Prefer explicit parameter and return types
+- Use interfaces/types for complex DTOs
+- Use PascalCase for types, interfaces, and classes
+- Use camelCase for functions, variables, and file names
+- Use English for identifiers, comments, logs, and error messages
+
+Example:
+```ts
+async function findCandidateById(id: number): Promise<Candidate | null> {
+  // implementation
+}
+```
+
+---
+
+# Application and Domain Rules
+
+## Entities and Models
+
+- Domain models should represent business concepts clearly
+- Keep invariants and validation close to the domain when appropriate
+- Avoid putting persistence concerns directly into domain models
+
+## Repositories
+
+- Define repository contracts in the domain layer
+- Implement them in the infrastructure layer using Prisma
+- Do not access Prisma directly from controllers
+- Prefer repository abstractions in services when the codebase already follows that pattern
+
+Example:
+
+```ts
+export interface ICandidateRepository {
+  findById(id: number): Promise<Candidate | null>;
+  save(candidate: Candidate): Promise<Candidate>;
+}
+```
+
+## Services
+
+- Services should orchestrate business use cases
+- Keep controllers focused on HTTP concerns only
+- Do not place business logic in routes/controllers
+
+---
+
+# Validation and Error Handling
+
+## Validation
+
+- Validate all external input before business logic runs
+- Centralize validation in the application layer when possible
+- Validate request params, query params, and body
+
+## Errors
+
+- Use custom error classes for meaningful failures
+- Keep error messages descriptive but safe
+- Do not expose stack traces or internal implementation details in API responses
+- Use centralized error middleware for consistent responses
+
+Example:
+```ts
+{
+  "success": false,
+  "error": {
+    "message": "Candidate not found",
+    "code": "NOT_FOUND"
+  }
+}
+```
+
+---
+
+# API Standards
+
+## REST Conventions
+
+Use resource-oriented endpoints:
+
+```
+GET    /candidates
+GET    /candidates/:id
+POST   /candidates
+PUT    /candidates/:id
+PATCH  /candidates/:id
+DELETE /candidates/:id
+```
+
+## Response Shape
+
+Use consistent JSON responses.
+
+Success:
+
+```json
+{
+  "success": true,
+  "data": {},
+  "message": "Operation completed successfully"
+}
+```
+
+Error:
+
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Validation failed",
+    "code": "VALIDATION_ERROR"
+  }
+}
+```
+
+## HTTP Status Codes
+
+Use appropriate status codes:
+
+- 200 OK
+- 201 Created
+- 400 Bad Request
+- 401 Unauthorized
+- 403 Forbidden
+- 404 Not Found
+- 409 Conflict
+- 500 Internal Server Error
+
+---
+
+# Prisma and Database Standards
+
+## Prisma Usage
+
+- The prisma/schema.prisma file is the source of truth for database structure
+- Use Prisma Client idiomatically
+- Avoid raw SQL unless strictly necessary
+- Select only required fields
+- Avoid N+1 query patterns
+- Use include and select carefully
+
+Example:
+```ts
+const candidate = await prisma.candidate.findUnique({
+  where: { id },
+  include: {
+    educations: true,
+    workExperiences: true
+  }
+});
+```
+
+## Migrations
+
+- All schema changes must go through Prisma migrations
+- Use descriptive migration names
+- Review migrations before applying
+- Prefer additive and safe schema changes
+
+## Transactions
+
+- Use transactions when multiple writes must succeed or fail together (atomicity).
+
+---
+
+# Logging Standards
+
+- Use the centralized logger
+- Log with appropriate levels: info, warn, error, debug
+- Use structured logs where possible
+- Never log secrets, credentials, or sensitive personal data
+
+Example:
+```ts
+logger.info('Candidate created', { candidateId: candidate.id });
+logger.error('Failed to create candidate', { error: error.message });
+```
+
+---
+
+# Security Standards
+
+- Validate and sanitize all inputs
+- Never trust client input
+- Use environment variables for configuration
+- Never commit secrets
+- Validate required environment variables at startup
+- Avoid exposing internal system details in errors
+- Prevent injection and mass-assignment style issues through validation and explicit mapping
+
+---
+
+# Testing Standards
+
+Testing is mandatory.
+
+## General Rules
+
+- Use Jest
+- Keep tests near the code they validate when practical
+- Use descriptive test names
+- Follow Arrange / Act / Assert
+- Mock external dependencies
+- Clear mocks in beforeEach()
+- Do not test implementation details when behavior can be tested directly
+
+## Coverage
+
+Maintain at least:
+
+- 90% branches
+- 90% functions
+- 90% lines
+- 90% statements
+
+## Test Types
+
+Include, where relevant:
+
+1. Happy path tests
+2. Validation/error tests
+3. Edge case tests
+4. Business rule tests
+5. Integration boundary tests
+
+## Mocking Rules
+
+- Mock repositories in service tests
+- Mock services in controller tests
+- Mock Prisma/database operations in unit tests
+- Use realistic test data
+
+```ts
+// Test Naming Pattern
+describe('CandidateService - findById', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should return candidate when found', async () => {
+    // Arrange
+    // Act
+    // Assert
+  });
+});
+```
+
+## Controller Tests
+
+- Test request/response handling
+- Test status codes
+- Test validation failures
+- Test error propagation and formatting
+
+## Service Tests
+
+- Test business logic in isolation
+- Test repository interactions
+- Test invalid and edge-case flows
+
+---
+
+# Code Quality Rules
+
+Before merging changes:
+
+- TypeScript must compile cleanly
+- Linting must pass
+- Tests must pass
+- New logic must be covered by tests
+- Changes must follow the project architecture and conventions
+
+# Development Workflow
+
+- Use small, focused branches
+- Use descriptive commit messages in English
+- Keep changes scoped
+- Prefer incremental refactors over large rewrites
+- Review for architecture consistency before merging
+
+---
+
+# Non-Negotiable Rules
+
+- Do not use `any` carelessly
+- Do not place business logic in controllers
+- Do not access Prisma directly from presentation-layer code unless the project explicitly does so already
+- Do not duplicate validation logic
+- Do not introduce breaking API changes silently
+- Do not skip tests for meaningful backend changes
+- Do not add unrelated refactors to a focused task

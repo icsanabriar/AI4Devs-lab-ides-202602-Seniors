@@ -1,0 +1,327 @@
+---
+description: Frontend standards and conventions for the React application using TypeScript, component-based architecture, accessible UI patterns, consistent state handling, and testing best practices.
+globs: ["frontend/src/**/*.{js,jsx,ts,tsx}", "frontend/cypress/**/*.{ts,js}", "frontend/tsconfig.json", "frontend/cypress.config.ts", "frontend/package.json"]
+alwaysApply: true
+---
+
+# Frontend Standards
+
+## Overview
+
+This frontend uses:
+
+- React
+- TypeScript
+- React Router
+- Axios
+- Bootstrap / React Bootstrap
+- Jest / React Testing Library
+- Cypress
+
+The goal is to keep the codebase:
+
+- component-driven
+- type-safe
+- accessible
+- responsive
+- maintainable
+- testable
+- consistent with existing UI patterns
+
+---
+
+## Core Principles
+
+### Architecture
+
+Prefer a clear separation of concerns:
+
+- `src/pages/` → route-level screens
+- `src/components/` → reusable UI components
+- `src/services/` → API communication
+- `src/assets/` → static assets
+- `src/` root files → app bootstrap, routes, global styles
+
+Keep responsibilities separated:
+
+- Pages compose features and screens
+- Components focus on presentation and interaction
+- Services handle API calls
+- Reusable stateful UI logic should move into custom hooks when helpful
+
+Respect the existing structure if the repository already follows a slightly different pattern.
+
+### React Approach
+
+- Use functional components only
+- Use hooks instead of class components
+- Prefer composition over inheritance
+- Keep components small and cohesive
+- Avoid over-abstraction
+- Extract reusable UI logic into hooks only when it improves clarity
+
+### Planning Rule
+
+For any non-trivial frontend change:
+
+- Create an implementation plan before coding
+- Save it in `ai-specs/changes/{feature_name}/frontend.md`
+- Include:
+  - problem understanding
+  - proposed UI/technical approach
+  - affected files
+  - state/data flow impact
+  - risks, edge cases, and accessibility considerations
+
+---
+
+## Project Structure
+
+Preferred structure:
+
+```text
+frontend/
+├── public/
+├── src/
+│   ├── components/
+│   ├── services/
+│   ├── pages/
+│   ├── assets/
+│   ├── App.tsx
+│   ├── index.tsx
+│   └── index.css
+├── cypress/
+│   └── e2e/
+├── package.json
+├── tsconfig.json
+└── cypress.config.ts
+```
+
+---
+
+# TypeScript and Naming Standards
+
+- Use strict typing
+- Avoid `any`
+- Define explicit prop types for components
+- Prefer precise types for API data, state, and handlers
+- Use PascalCase for components, types, and interfaces
+- Use camelCase for variables, functions, hooks, and utilities
+- Use kebab-case for CSS class names
+- Use English for identifiers, comments, logs, and UI error messages
+
+Example:
+```ts
+type CandidateCardProps = {
+  candidate: Candidate;
+  onClick: (candidate: Candidate) => void;
+};
+
+const CandidateCard = ({ candidate, onClick }: CandidateCardProps) => {
+  return (
+    <div className="candidate-card" onClick={() => onClick(candidate)}>
+      {candidate.firstName}
+    </div>
+  );
+};
+```
+
+## Component Rules
+
+- Prefer focused, reusable components
+- Destructure props
+- Separate UI rendering from heavier business logic where practical
+- Do not create giant components with mixed responsibilities
+- Avoid prop drilling if the existing project already uses a better shared-state approach
+
+Every meaningful component should account for:
+
+- Props
+- User interactions
+- Loading state
+- Empty state
+- Error state
+- Accessibility behavior
+
+---
+
+# State Management Rules
+
+- Use local state for local concerns
+- Lift state only when multiple components must coordinate
+- Use custom hooks for reusable stateful logic
+- Respect the repository's current data/state approach
+- Do not introduce new state libraries unless clearly justified
+
+For async UI:
+
+- Always handle loading states
+- Always handle error states
+- Handle empty states when relevant
+- Avoid stale updates and unnecessary re-fetches
+
+Example:
+```ts
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState('');
+const [data, setData] = useState<Candidate[]>([]);
+```
+
+---
+
+# Service Layer Rules
+
+- Centralize API calls in services/
+- Use Axios consistently
+- Keep API concerns out of UI components when possible
+- Return typed data when possible; when the API wraps payloads in `{ success, data }`, return the inner `data` so callers receive typed entities
+- Handle transport-level errors clearly and rethrow when needed
+
+Example:
+```ts
+export const candidateService = {
+  async getAllCandidates(): Promise<Candidate[]> {
+    const response = await axios.get('/candidates');
+    return response.data.data ?? response.data;
+  }
+};
+```
+
+---
+
+# UI and UX Rules
+
+- Follow the existing design system and component patterns
+- Use React Bootstrap components when the project already uses them
+- Keep spacing, typography, and interaction behavior consistent
+- Build responsive layouts by default
+- Prefer controlled form components
+- Disable submit actions only when justified
+- Show useful feedback for success and error states
+
+## Navigation
+
+- Use React Router conventions consistently
+- Use route-level components in pages/
+- Use useNavigate() for programmatic navigation when needed
+- Do not break existing deep links or route behavior
+
+---
+
+# Accessibility Rules
+
+Accessibility is mandatory.
+
+Always:
+
+- Use semantic HTML first
+- Ensure keyboard accessibility
+- Provide accessible labels for controls
+- Preserve focus visibility
+- Use proper button/link semantics
+- Provide alt text for meaningful images
+- Avoid inaccessible click-only div patterns
+
+Example:
+```ts
+<Form.Control
+  type="text"
+  aria-label="Search candidates by name"
+/>
+```
+
+---
+
+# Form Rules
+
+- Use controlled inputs
+- Validate clearly
+- Show useful inline or nearby error messages
+- Handle submission loading states
+- Preserve user input on recoverable failures
+- Clear or reset only when appropriate after success
+
+---
+
+# Testing Standards
+
+Testing is required for meaningful frontend changes.
+
+## Unit and Component Tests
+
+Use:
+
+- Jest
+- React Testing Library
+
+Test:
+
+- Rendering
+- User interactions
+- Loading states
+- Empty states
+- Error states
+- Important accessibility behavior when relevant
+
+## End-to-End Tests
+
+Use Cypress for real user flows.
+
+Test:
+
+- Core screen flows
+- Form submissions
+- Navigation
+- Key success and failure paths
+
+## General Rules
+
+- Use descriptive test names
+- Group tests with describe
+- Prefer behavior-focused tests over implementation-detail tests
+- Use stable selectors when necessary, including data-testid
+- Cover both success and failure scenarios
+
+---
+
+# Configuration Rules
+
+- Keep TypeScript strict
+- Use environment variables for API URLs
+- Keep frontend config environment-specific where needed
+- Ensure linting, type-checking, and tests pass before merging
+
+---
+
+# Performance Rules
+
+- Avoid unnecessary re-renders
+- Memoize only when there is a clear benefit
+- Extract reusable heavy logic into hooks/utilities when justified
+- Lazy load route-level code when supported and useful
+- Avoid unnecessary API calls
+- Handle perceived performance with proper loading states
+
+
+---
+
+# Development Workflow
+
+- Use small, focused branches
+- Add descriptive commit messages in English
+- Keep changes scoped to the task
+- Prefer incremental refactors over large rewrites
+- Ensure code review readiness before merging
+
+---
+
+# Non-Negotiable Rules
+
+- Do not use `any` carelessly
+- Do not ignore loading, empty, or error states
+- Do not place API logic directly in large page components when it should live in services/hooks
+- Do not build inaccessible interactions
+- Do not introduce UI-breaking changes silently
+- Do not add unnecessary dependencies
+- Do not skip tests for meaningful frontend changes
+- Do not claim something was tested if it was not tested
